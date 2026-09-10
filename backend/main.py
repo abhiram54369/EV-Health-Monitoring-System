@@ -1,28 +1,19 @@
+import bcrypt
 from backend.models import machine
 
-# pyrefly: ignore [missing-import]
-from fastapi import FastAPI
-from backend.database.connection import engine, Base
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import or_
+from sqlalchemy.orm import Session
+from backend.database.connection import engine, Base, get_db
 from backend.models.user import User
+from backend.schemas.user import UserCreate, UserLogin, UserResponse
 from backend.models.machine import Machine
 from backend.schemas.machine import MachineCreate
 from backend.models.telemetry import Telemetry
-
-# pyrefly: ignore [missing-import]
 from backend.schemas.telemetry import TelemetryCreate
-
-# pyrefly: ignore [missing-import]
-from fastapi import Depends
-
-# pyrefly: ignore [missing-import]
-from sqlalchemy.orm import Session
 from backend.models.maintenance import Maintenance
-
-# pyrefly: ignore [missing-import]
 from backend.schemas.maintenance import MaintenanceCreate
-
-from backend.database.connection import get_db
-from backend.schemas.user import UserCreate
 from backend.ml.predict import predict_failure
 from backend.schemas.predict import PredictionInput
 
@@ -51,10 +42,85 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="EV Charging Station Health Monitoring API", version="1.0")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+def verify_password(plain_password: str, stored_password: str) -> bool:
+    if stored_password.startswith(("$2b$", "$2a$", "$2y$")):
+        try:
+            return bcrypt.checkpw(plain_password.encode("utf-8"), stored_password.encode("utf-8"))
+        except Exception:
+            return False
+    return stored_password == plain_password
+
 
 @app.get("/")
 def home():
     return {"message": "EV Charging Station Health Monitoring Backend Running"}
+
+
+@app.post("/login")
+def login_user(credentials: UserLogin, db: Session = Depends(get_db)):
+    user = db.query(User).filter(
+        or_(User.email == credentials.email, User.name == credentials.email)
+    ).first()
+
+    if not user or not verify_password(credentials.password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email/username or password"
+        )
+
+    return {
+        "message": "Login successful",
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email
+        }
+    }
+
+
+@app.post("/register")
+def register_user(user: UserCreate, db: Session = Depends(get_db)):
+    clean_email = user.email.strip().lower()
+    clean_name = user.name.strip()
+
+    existing_user = db.query(User).filter(User.email.ilike(clean_email)).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="An account with this email address already exists"
+        )
+
+    hashed_password = bcrypt.hashpw(
+        user.password.encode("utf-8"), bcrypt.gensalt()
+    ).decode("utf-8")
+
+    new_user = User(
+        name=clean_name,
+        email=clean_email,
+        password=hashed_password
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {
+        "message": "User registered successfully",
+        "user": {
+            "id": new_user.id,
+            "name": new_user.name,
+            "email": new_user.email
+        }
+    }
 
 
 @app.post("/users")

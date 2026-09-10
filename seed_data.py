@@ -253,6 +253,33 @@ db.commit()
 
 print("50 alert records created.")
 
+# -----------------------
+# Create Sample Users
+# -----------------------
+from backend.models.user import User
 
+print("Creating sample users...")
+
+demo_users = [
+    User(
+        name="Admin Operator",
+        email="admin@ev-health.com",
+        password="admin123"
+    ),
+    User(
+        name="Rahul Sharma",
+        email="operator@ev-health.com",
+        password="stationPass2026!"
+    )
+]
+
+for user in demo_users:
+    existing = db.query(User).filter(User.email == user.email).first()
+    if not existing:
+        db.add(user)
+
+db.commit()
+print("Sample users seeded successfully.")
 
 db.close()
+
