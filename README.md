@@ -1,20 +1,28 @@
-# EV Charging Station Health Monitoring
+# EV Charging Station Health Monitoring System
 
 ## Overview
 
-EV Charging Station Health Monitoring is a FastAPI-based backend application that monitors the health of electric vehicle charging stations using telemetry data and machine learning. The system stores charging station information, telemetry records, maintenance history, and predicts whether a charging station is healthy or likely to fail.
+EV Charging Station Health Monitoring System is a web-based Flask application designed to monitor the health and performance of electric vehicle charging stations.
+
+The system uses telemetry and charging-session data along with machine learning to analyze charging station health, identify potential failures, track maintenance activity, and provide predictive insights through an interactive dashboard.
 
 ---
 
 ## Features
 
 - User Management
-- Charging Station Management
-- Telemetry Data Management
-- Maintenance Record Management
+- Charging Station Monitoring
+- Telemetry Data Monitoring
+- Charging Session Tracking
+- Maintenance Management
+- Failure History
+- Alert Management
+- Operator Management
+- Feedback Management
 - Machine Learning Failure Prediction
-- RESTful APIs
-- Swagger API Documentation
+- Station Health Analytics
+- Battery Health Monitoring
+- Interactive Dashboard
 - SQLite Database
 
 ---
@@ -22,150 +30,123 @@ EV Charging Station Health Monitoring is a FastAPI-based backend application tha
 ## Technologies Used
 
 - Python
-- FastAPI
-- SQLAlchemy
+- Flask
 - SQLite
-- Scikit-learn
 - Pandas
+- Scikit-learn
 - Joblib
-- Uvicorn
+- HTML
+- CSS
+- JavaScript
 
 ---
 
 ## Project Structure
 
-```
-backend/
+```text
+ev-health-monitoring-system/
 │
-├── api/
-│   ├── main.py
-│   ├── routes/
+├── backend/
+│   ├── database/
+│   ├── ml/
+│   │   ├── model.pkl
+│   │   ├── predict.py
+│   │   └── train_model.py
+│   ├── models/
+│   ├── schemas/
+│   └── main.py
 │
-├── database/
-│   ├── database.py
-│   ├── models.py
+├── frontend/
+│   └── app.py
 │
-├── schemas/
-│
-├── ml/
-│   ├── train_model.py
-│   ├── predict.py
-│   ├── model.pkl
-│
+├── predictive_maintenance_process.db
 ├── seed_data.py
-│
-requirements.txt
-README.md
-```
+├── requirements.txt
+├── README.md
+└── .gitignore
 
----
+Installation
 
-## Installation
-
-### Clone the repository
-
-```bash
+1. Clone the repository
 git clone <repository-url>
-cd EV_Charging_Station_Health_Monitoring
-```
-
-### Install dependencies
-
-```bash
+cd ev-health-monitoring-system
+2. Install dependencies
 pip install -r requirements.txt
-```
+3. Run the application
+python frontend/app.py
+4. Open the application
 
-### Run the application
+Open the following address in your browser:
 
-```bash
-uvicorn backend.api.main:app --reload
-```
+http://127.0.0.1:5000
 
----
+Machine Learning
 
-## API Documentation
+The system includes a machine learning component for predicting charging station health and potential failures.
 
-Open Swagger UI:
+The trained model is stored in:
 
-```
-http://127.0.0.1:8000/docs
-```
+backend/ml/model.pkl
 
----
+The ML functionality is supported by:
 
-## Available APIs
+Scikit-learn
+Pandas
+Joblib
+Database
 
-### Users
+The application uses SQLite for storing project data.
 
-- POST /users
-- GET /users/all
+Database file:
 
-### Charging Stations
+predictive_maintenance_process.db
 
-- POST /charging-stations
-- GET /charging-stations/all
+The database contains information related to:
 
-### Telemetry
+Users
+Charging Stations
+Telemetry
+Charging Sessions
+Maintenance
+Predictions
+Alerts
+Failure History
+Operators
+Feedback
+Dashboard
 
-- POST /telemetry
-- GET /telemetry/all
+The Flask application provides an interactive dashboard for viewing:
 
-### Maintenance
+Charging station health
+Station performance
+Battery health
+Predictive maintenance information
+Failure history
+Alerts
+Analytics
+Maintenance records
 
-- POST /maintenance
-- GET /maintenance/all
+The dashboard also includes a day/night theme option for the interface.
 
-### Prediction
+Requirements
 
-- POST /predict
+The main Python dependencies are listed in:
 
----
+requirements.txt
 
-## Machine Learning Model
+Current dependencies:
 
-The application uses a Random Forest Classifier trained on:
+Flask
+pandas
+joblib
+scikit-learn
+Future Enhancements
+Real-time IoT sensor integration
+Automated failure notifications
+Cloud deployment
+Advanced predictive maintenance models
+Historical performance visualization
+Real-time charging station monitoring
+Author
 
-- Temperature
-- Humidity
-- Power Consumption
-
-The model predicts:
-
-- Charging Station Healthy
-- Failure Expected
-
----
-
-## Sample Prediction Request
-
-```json
-{
-    "temperature": 28,
-    "humidity": 40,
-    "power_consumption": 12
-}
-```
-
-### Sample Response
-
-```json
-{
-    "prediction": "Charging Station Healthy"
-}
-```
-
----
-
-## Future Enhancements
-
-- Real-time IoT sensor integration
-- Email alerts for failures
-- Dashboard and analytics
-- Cloud deployment
-- Historical performance visualization
-
----
-
-## Author
-
-**KADALI PRASAMHITA**
+J.S.S.ABHIRAM
